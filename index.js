@@ -12,9 +12,9 @@ app.get('/webhook', (req, res) => {
     const mode = req.query['hub.mode'];
     const token = req.query['hub.verify_token'];
     const challenge = req.query['hub.challenge'];
-    
+    console.log("Success message");
     const VERIFY_TOKEN = 'your_verify_token'; // Replace with your own verification token
-    console.log('tested its coming');
+
     // Verify token and respond with challenge
     if (mode && token === VERIFY_TOKEN) {
         res.status(200).send(challenge); // Respond to Facebook's verification request
@@ -29,19 +29,21 @@ app.post('/webhook', (req, res) => {
 
     console.log("Received message: ", incomingMessage);
 
-    // Check for the "messages" field, which contains the incoming messages
     if (incomingMessage.object) {
         incomingMessage.entry.forEach(entry => {
-            entry.messaging.forEach(event => {
-                if (event.message) {
-                    const senderId = event.sender.id;
-                    const message = event.message.text; // Text of the incoming message
-                    
-                    console.log(`Message received from ${senderId}: ${message}`);
-
-                    // You can add logic here to respond back or process the message
-                }
-            });
+            // Check for 'changes' and ensure that it's an array
+            if (entry.changes && Array.isArray(entry.changes)) {
+                entry.changes.forEach(change => {
+                    if (change.value && change.value.messages) {
+                        change.value.messages.forEach(message => {
+                            const senderId = message.from;  // Sender's phone number
+                            const messageText = message.text ? message.text.body : null;  // Text content of the message
+                            
+                            console.log(`Message received from ${senderId}: ${messageText}`);
+                        });
+                    }
+                });
+            }
         });
         res.status(200).send('EVENT_RECEIVED');
     } else {
