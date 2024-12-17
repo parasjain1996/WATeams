@@ -14,7 +14,7 @@ app.get('/webhook', (req, res) => {
     const challenge = req.query['hub.challenge'];
     
     const VERIFY_TOKEN = 'your_verify_token'; // Replace with your own verification token
-
+    console.log('tested its coming');
     // Verify token and respond with challenge
     if (mode && token === VERIFY_TOKEN) {
         res.status(200).send(challenge); // Respond to Facebook's verification request
